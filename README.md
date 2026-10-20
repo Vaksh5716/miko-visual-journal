@@ -7,8 +7,9 @@
 - ✅ 首页、筛选、画廊、作品详情、默认折叠的学习卡片。
 - ✅ 本地收藏、笔记、本机照片上传（IndexedDB，**仅在当前浏览器**）。
 - ✅ GitHub Actions 每日定时运行，自动从 Wikimedia Commons 搜集符合可复用授权条件的作品，记录作者/许可/原始链接，去重。
-- ✅ 可选 Gemini 免费视觉 API 分析；没有密钥时仍可每日更新图片，解析显示为待生成。
-- ⏳ 需要部署至你自己的 GitHub 仓库、启用 Pages，并根据你的 Gemini AI Studio 帐号实际配额设置 API Key。当前并未发布上线。
+- ✅ 可选 Gemini 免费视觉 API 分析接口；尚未进行真实 AI 调用验证。没有密钥及免费层确认时仍可每日更新图片，解析显示为待生成。
+- ✅ 已发布：[Miko Atelier](https://vaksh5716.github.io/miko-visual-journal/)。Pages 首次发布成功，每日更新工作流也已手动运行成功。
+- ⏳ Gemini 尚待用户本人完成 AI Studio 条款确认、创建未关联结算账号的免费项目密钥，并存入 GitHub Secret；免费层确认开关保持关闭。
 - ⏳ Instagram 等非开放平台图片的跨设备同步、私人照片自动 AI 解析，需要未来安全后端和更详细授权设计，此版不自动上传。
 
 ## 零额外费用原则
@@ -95,3 +96,10 @@ python3 scripts/daily.py             # 正式保存当天 8 张新作品
 - [Wikimedia 复用指南](https://commons.wikimedia.org/wiki/Commons:Reusing_content_outside_Wikimedia)：按每张作品具体许可保留署名及许可链接。
 
 此静态版本不提供账号登录和跨设备私人同步。来源自动筛选不等同于人工审美编辑，也不保证每天图库服务可用或一定补足 8 张；页面会显示真实状态。
+
+## 线上验证记录
+
+- [首次 Pages 发布成功](https://github.com/Vaksh5716/miko-visual-journal/actions/runs/39404349316)。
+- [每日工作流手动测试成功](https://github.com/Vaksh5716/miko-visual-journal/actions/runs/39404672944)：当天已满 8 张，因此不重复新增；AI 关闭，更新状态并发布页面。后续定时采集仍取决于图库服务是否可用。
+- 浏览器实测 8/8 线上图片可加载；本机测试覆盖收藏、即时笔记、图片上传、手动学习卡片导入、刷新保留、完整备份与合并恢复。
+- 未安装 GitHub 连接应用或扩大账号权限；使用已登录的 GitHub 网页完成上传和部署。
