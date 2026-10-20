@@ -1,0 +1,62 @@
+name: Daily Visual Edit
+on:
+  workflow_dispatch:
+  schedule:
+    # 20:17 UTC = 04:17 next day in UTC+8, avoids top-of-hour GitHub congestion.
+    - cron: '17 20 * * *'
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+concurrency:
+  group: miko-pages
+  cancel-in-progress: false
+jobs:
+  curate:
+    if: github.event.repository.private == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify collection safety rules
+        run: python scripts/test_daily.py
+      - name: Collect and optionally analyze open-license photos
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: gemini-3.1-flash-lite
+          GEMINI_FREE_TIER_CONFIRMED: ${{ vars.GEMINI_FREE_TIER_CONFIRMED }}
+          WIKIMEDIA_USER_AGENT: ${{ secrets.WIKIMEDIA_USER_AGENT }}
+        run: python scripts/daily.py --max 8
+      - name: Commit content only if updated
+        run: |
+          if [ -z "$(git status --porcelain -- data/)" ]; then
+            echo "No changes"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/entries.json data/status.json
+          git commit -m "Update daily photography selection"
+          git push
+      - name: Prepare public site files (never expose secrets)
+        run: |
+          mkdir -p _site
+          cp index.html _site/index.html
+          cp -r assets data _site/
+          touch _site/.nojekyll
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+          retention-days: 1
+      - name: Deploy updated Pages content
+        id: deployment
+        uses: actions/deploy-pages@v4
