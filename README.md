@@ -7,9 +7,9 @@
 - ✅ 首页、筛选、画廊、作品详情、默认折叠的学习卡片。
 - ✅ 本地收藏、笔记、本机照片上传（IndexedDB，**仅在当前浏览器**）。
 - ✅ GitHub Actions 每日定时运行，自动从 Wikimedia Commons 搜集符合可复用授权条件的作品，记录作者/许可/原始链接，去重。
-- ✅ 可选 Gemini 免费视觉 API 分析接口；尚未进行真实 AI 调用验证。没有密钥及免费层确认时仍可每日更新图片，解析显示为待生成。
+- ✅ Gemini 免费视觉分析已验证：现有 8/8 张开放图库图片均生成完整学习卡片并已上线。没有密钥及免费层确认时仍可每日更新图片，解析显示为待生成。
 - ✅ 已发布：[Miko Atelier](https://vaksh5716.github.io/miko-visual-journal/)。Pages 首次发布成功，每日更新工作流也已手动运行成功。
-- ⏳ Gemini 尚待用户本人完成 AI Studio 条款确认、创建未关联结算账号的免费项目密钥，并存入 GitHub Secret；免费层确认开关保持关闭。
+- ✅ Gemini 密钥由用户本人存入 GitHub Secret，免费层确认开关已开启；Google 控制台已核实没有结算账号，项目为免费层级。
 - ⏳ Instagram 等非开放平台图片的跨设备同步、私人照片自动 AI 解析，需要未来安全后端和更详细授权设计，此版不自动上传。
 
 ## 零额外费用原则
@@ -27,7 +27,7 @@ python3 -m http.server 8080
 # 打开 http://localhost:8080
 ```
 
-已于 2026-10-20 实测并收录首批 8 张开放授权作品：4 张人像、3 张其他摄影、1 张电影美术，图片地址逐一验证可读取。未配置任何 API Key。
+已于 2026-10-20 实测并收录首批 8 张开放授权作品：4 张人像、3 张其他摄影、1 张电影美术，图片地址逐一验证可读取。API Key 仅存 GitHub 加密 Secret，不包含在源代码或此备份中。
 
 ## 收集第一批内容
 
@@ -44,7 +44,7 @@ python3 scripts/daily.py             # 正式保存当天 8 张新作品
 2. 经用户单独确认后，在 GitHub 仓库 Settings → Secrets and variables → Actions → New repository secret，新建 `GEMINI_API_KEY`。不要在聊天中发送 Key。
 3. 只有在确认此 Google 项目**未关联结算账号**、模型免费额度可用、并同意开放图库缩略图发送给 Google 后，才将仓库变量 `GEMINI_FREE_TIER_CONFIRMED` 设为 `true`。未设定时，即使存在密钥也不会调用 AI。脚本无法替你验证 Google 项目结算状态，开关本身不是费用上限。
 4. 可选新增 `WIKIMEDIA_USER_AGENT`，建议设为包含有效联系信息的自定义 User-Agent（遵循 Wikimedia API etiquette）。
-5. Workflow 采用 `gemini-3.1-flash-lite`，如果你的实际免费项目不支持这个模型，就在 `.github/workflows/daily.yml` 中改为账户中可免费调用的视觉模型。**不可使用付费模型做自动回退。**
+5. Workflow 采用 `gemini-3.5-flash-lite`，如果你的实际免费项目不支持这个模型，就在 `.github/workflows/daily.yml` 中改为账户中可免费调用的视觉模型。**不可使用付费模型做自动回退。**
 6. 手动运行 Actions → Daily Visual Edit → Run workflow 验证，然后按 UTC 定时运行。
 
 **注意**：上传的私人照片只存在你的设备上，不会被自动发送给 Gemini。打开私人照片详情，可复制提示词，在 ChatGPT 中自行附图分析，再把四个字段的 JSON 粘贴回学习卡片；这个流程不需要 API Key。
@@ -75,7 +75,7 @@ python3 scripts/daily.py             # 正式保存当天 8 张新作品
 - `assets/app.js` 收藏、筛选、详情、笔记、本机照片上传
 - `scripts/daily.py` 免费开放图库收集与可选 Gemini 分析
 - `.github/workflows/daily.yml` 定时任务
-- `data/entries.json` 作品数据（首次运行前为空）
+- `data/entries.json` 作品及学习卡片数据
 
 ## 本次修复与验证
 
@@ -92,7 +92,7 @@ python3 scripts/daily.py             # 正式保存当天 8 张新作品
 ## 免费服务依据（核查于 2026-10-20）
 
 - [GitHub Actions 计费](https://docs.github.com/en/billing/concepts/product-billing/github-actions)：公开仓库的标准 GitHub runner 免费。
-- [Gemini API 定价](https://ai.google.dev/gemini-api/docs/pricing)：gemini-3.1-flash-lite 的 Free Tier 支持图片输入；账户实际配额、区域和结算状态需要在用户自己的 AI Studio 核实。
+- [Gemini API 定价](https://ai.google.dev/gemini-api/docs/pricing)：gemini-3.5-flash-lite 的 Free Tier 支持图片输入；账户实际配额、区域和结算状态需要在用户自己的 AI Studio 核实。
 - [Wikimedia 复用指南](https://commons.wikimedia.org/wiki/Commons:Reusing_content_outside_Wikimedia)：按每张作品具体许可保留署名及许可链接。
 
 此静态版本不提供账号登录和跨设备私人同步。来源自动筛选不等同于人工审美编辑，也不保证每天图库服务可用或一定补足 8 张；页面会显示真实状态。
@@ -103,3 +103,10 @@ python3 scripts/daily.py             # 正式保存当天 8 张新作品
 - [每日工作流手动测试成功](https://github.com/Vaksh5716/miko-visual-journal/actions/runs/39404672944)：当天已满 8 张，因此不重复新增；AI 关闭，更新状态并发布页面。后续定时采集仍取决于图库服务是否可用。
 - 浏览器实测 8/8 线上图片可加载；本机测试覆盖收藏、即时笔记、图片上传、手动学习卡片导入、刷新保留、完整备份与合并恢复。
 - 未安装 GitHub 连接应用或扩大账号权限；使用已登录的 GitHub 网页完成上传和部署。
+
+## Gemini 接入记录
+
+已核实该免费项目的 Gemini 3.5 Flash Lite 配额为 15 RPM、250K TPM、500 RPD（2026-10-20）；使用一个明确配置的免费视觉模型，不自动切换付费服务。服务错误会记录来源与错误类型，页面显示等待服务恢复。每日任务重跑时读取主分支最新代码，避免旧执行版本覆盖已更新的数据。
+
+- [Gemini 免费视觉分析及发布验证成功](https://github.com/Vaksh5716/miko-visual-journal/actions/runs/39406524050)：2026-10-20，Gemini 3.5 Flash Lite 已生成并发布 8/8 张作品的四字段学习卡片。Google 项目控制台显示免费层级且没有结算账号。
+- 故障诊断及保护检查共 7 项通过；线上学习卡片仍默认收起，私人上传仍采用手动分析结果导入。
