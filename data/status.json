@@ -1,12 +1,12 @@
 {
-  "lastAttempt": "2026-10-20T17:59:30.909700+08:00",
+  "lastAttempt": "2026-10-20T18:05:07.585653+08:00",
   "latestSelection": "2026-10-20",
   "newItems": 0,
   "todayItems": 8,
   "targetItems": 8,
   "analyzedItems": 0,
   "totalItems": 8,
-  "aiStatus": "disabled-awaiting-free-tier-confirmation",
+  "aiStatus": "enabled",
   "sourceErrors": 0,
   "message": "success"
 }
