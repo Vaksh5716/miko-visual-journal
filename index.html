@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#f4f2ec" />
+  <meta name="description" content="Miko Atelier · 摄影和电影美术的每日视觉学习笔记" />
+  <title>Miko Atelier — 视觉笔记</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+  <script defer src="assets/app.js"></script>
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+  <header class="site-header">
+    <a class="wordmark" href="#daily" aria-label="Miko Atelier 首页"><span class="logo-mark">M<span class="logo-dot">.</span></span><span class="brand-copy"><strong>MIKO ATELIER</strong><small>VISUAL JOURNAL · 视觉笔记</small></span></a>
+    <nav class="primary-nav" aria-label="主导航">
+      <button data-tab="daily" class="nav-btn active" type="button">每日精选<span class="nav-en"> / Discover</span></button>
+      <button data-tab="saved" class="nav-btn" type="button">我的收藏<span class="nav-en"> / Archive</span></button>
+    </nav>
+    <div class="nav-right"><span class="status-dot"></span><span>每日更新 · 个人审美实验室</span></div>
+  </header>
+
+  <main>
+    <section class="hero" id="intro">
+      <div class="hero-topline"><span>EST. 2026</span><span>FOR LOOKING CLOSER — NOT SCROLLING FASTER</span></div>
+      <div class="hero-grid">
+        <div class="hero-copy"><div class="eyebrow"><span class="tiny-square"></span> A PERSONAL STUDY OF SEEING</div>
+          <h1>把目光，<br /><em>练成一种能力。</em></h1>
+          <p>在照片里学习光线、在电影里感受空间。每天一点新的观看经验，慢慢建立属于自己的视觉语言。</p>
+          <div class="hero-actions"><button class="pill-btn dark" id="scroll-to-gallery" type="button">开始今日观看 <span aria-hidden="true">↗</span></button><span class="hero-note">NO RUSH. JUST LOOK.</span></div>
+        </div>
+        <div class="hero-art" aria-hidden="true"><div class="art-frame"><div class="art-haze"></div><div class="art-orb"></div><div class="art-geometry"></div><span class="art-side">OBSERVE / FRAME / FEEL</span><span class="art-number">01—08</span></div><span class="art-caption">AN EXERCISE IN ATTENTION <span>✳</span></span></div>
+      </div>
+      <div class="hero-footer"><span>PHOTOGRAPHY <b>·</b> PORTRAIT <b>·</b> CINEMA</span><span id="today-label"></span></div>
+    </section>
+
+    <section class="gallery-section" id="daily-section">
+      <div class="section-heading"><div><div class="eyebrow">CURATED FOR YOUR EYES</div><h2>每日精选 <span class="serif-italic">/ The Daily Edit</span></h2></div><div class="heading-meta"><span id="gallery-status">正在加载…</span><span class="hairline"></span><span>NO. <span id="total-count">000</span></span></div></div>
+      <p id="update-status" class="update-status">正在检查精选更新状态…</p><div class="tabs-line" id="filters" role="group" aria-label="按主题筛选"><button class="filter active" data-filter="all">全部作品</button><button class="filter" data-filter="portrait">人像摄影</button><button class="filter" data-filter="photography">其他摄影</button><button class="filter" data-filter="cinema">电影美术</button></div>
+      <div class="gallery-grid" id="gallery" aria-live="polite"></div>
+      <div id="daily-empty" class="empty-state" hidden><span class="empty-symbol">✳</span><h3>画廊正在等待第一批作品。</h3><p>项目已经准备好自动采集工作流。启用 GitHub Actions 后，它会每天寻找开放授权照片并填入这里。</p><small>此版本不填充来源不明的演示照片。</small></div>
+    </section>
+
+    <section class="archive-section" id="saved-section" hidden>
+      <div class="section-heading"><div><div class="eyebrow">YOUR PERSONAL COLLECTION</div><h2>我的收藏 <span class="serif-italic">/ Personal Archive</span></h2></div><button type="button" class="pill-btn dark" id="upload-trigger">+ 添加自己的照片</button></div>
+      <div class="privacy-ribbon"><span aria-hidden="true">◉</span> 私人上传的照片、收藏和笔记仅保存在当前浏览器，不会上传至公开网站仓库。清除浏览器数据可能导致丢失，请定期导出备份。</div>
+      <div class="archive-tools"><button type="button" id="backup-export" class="text-action">↓ 完整备份收藏和照片</button><button type="button" id="backup-import" class="text-action">↑ 恢复备份</button><input type="file" id="backup-input" accept="application/json,.json" hidden /><button type="button" id="upload-trigger-secondary" class="text-action">＋ 导入本机照片</button></div>
+      <div class="gallery-grid" id="saved-gallery"></div>
+      <div class="empty-state" id="saved-empty"><span class="empty-symbol">♡</span><h3>把打动你的作品留下来。</h3><p>收藏每日精选，或上传你在其他地方看到的作品，慢慢形成自己的审美档案。</p></div>
+      <input type="file" id="file-input" accept="image/*" multiple hidden />
+    </section>
+
+    <footer class="site-footer"><div><strong>MIKO ATELIER <span>✳</span></strong><p>Develop an eye for what matters.</p></div><div class="footer-right"><span>学会观看，而不是只会收藏。</span><span>© 2026 / PERSONAL STUDY</span></div></footer>
+  </main>
+
+  <dialog id="study-dialog" class="study-dialog" aria-label="作品详情及学习解析">
+    <div class="dialog-layout"><div class="dialog-media"><img id="detail-image" alt="作品预览" /><div class="image-attrib" id="detail-attrib"></div></div><div class="dialog-info"><div class="dialog-top"><span class="eyebrow" id="detail-category">PHOTO STUDY</span><button class="icon-button close-button" id="close-dialog" title="关闭" aria-label="关闭">×</button></div><h2 id="detail-title">作品笔记</h2><p id="detail-subtitle" class="detail-subtitle"></p><div class="detail-actions"><button class="pill-btn outline" id="detail-save" type="button">♡ 收藏作品</button><a id="detail-source" target="_blank" rel="noopener noreferrer" class="source-link">查看作品来源 ↗</a></div>
+      <div class="detail-expand"><button class="expand-toggle" type="button" id="analysis-toggle" aria-expanded="false"><span>学习解析 <small> / STUDY NOTES</small></span><span id="toggle-symbol">＋</span></button><div id="analysis-content" hidden><div class="analysis-row"><small>01 / 光线</small><p id="study-lighting"></p></div><div class="analysis-row"><small>02 / 构图</small><p id="study-composition"></p></div><div class="analysis-row"><small>03 / 色彩</small><p id="study-color"></p></div><div class="analysis-row"><small>04 / 实拍启发</small><p id="study-practice"></p></div><p id="analysis-disclaimer" class="analysis-disclaimer"></p></div></div>
+      <button type="button" id="delete-upload" class="text-action" hidden>删除这张本机照片</button><div class="manual-analysis" id="manual-analysis" hidden><p>自己的照片留在本机。可复制提示词后，在 ChatGPT 中自行附上这张照片；将得到的 JSON 粘贴回来即可保存学习卡片。当前未启用自动云端分析。</p><button type="button" class="text-action" id="copy-analysis-prompt">复制分析提示词</button><details><summary>粘贴分析结果</summary><label for="analysis-json">学习卡片 JSON</label><textarea id="analysis-json" rows="5" placeholder='{"lighting":"…","composition":"…","color":"…","practice":"…"}'></textarea><button type="button" id="import-analysis" class="pill-btn outline">保存学习卡片</button></details></div><div class="notes-area"><label for="personal-note">我的观察 / YOUR THOUGHTS</label><textarea id="personal-note" placeholder="这张作品为什么打动我？如果是我，会如何拍摄…" rows="4"></textarea><span class="note-save-state" id="note-save-state">内容保存在当前浏览器</span></div>
+    </div></div>
+  </dialog>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
