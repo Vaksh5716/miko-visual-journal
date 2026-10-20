@@ -4,6 +4,9 @@ import importlib.util
 import json
 import tempfile
 import unittest
+import urllib.error
+import io
+from contextlib import redirect_stderr
 from pathlib import Path
 from unittest.mock import patch
 
@@ -40,6 +43,19 @@ class DailyTests(unittest.TestCase):
     def test_ai_disabled_without_confirmation(self):
         with patch.object(daily,'AI_ENABLED',False),patch.object(daily,'get',side_effect=AssertionError('network forbidden')):
             self.assertIsNone(daily.analyze({'image':'https://example.com/'}))
+
+    def test_service_failure_reports_source_and_stops(self):
+        failure=urllib.error.HTTPError('https://generativelanguage.googleapis.com',503,'Unavailable',{},None)
+        with patch.object(daily,'AI_ENABLED',True),patch.object(daily,'AI_STOPPED',False),patch.object(daily,'AI_ERROR',None),patch.object(daily,'get',return_value=b'\xff\xd8image'),patch.object(daily.urllib.request,'urlopen',side_effect=failure),redirect_stderr(io.StringIO()):
+            self.assertIsNone(daily.analyze({'image':'https://example.com/photo.jpg'}))
+            self.assertTrue(daily.AI_STOPPED)
+            self.assertEqual(daily.AI_ERROR,{'source':'gemini','code':503})
+
+    def test_image_failure_is_not_reported_as_gemini(self):
+        failure=urllib.error.HTTPError('https://upload.wikimedia.org',429,'Rate limit',{},None)
+        with patch.object(daily,'AI_ENABLED',True),patch.object(daily,'AI_STOPPED',False),patch.object(daily,'AI_ERROR',None),patch.object(daily,'get',side_effect=failure),patch.object(daily.urllib.request,'urlopen',side_effect=AssertionError('Gemini must not be called')),redirect_stderr(io.StringIO()):
+            self.assertIsNone(daily.analyze({'image':'https://example.com/photo.jpg'}))
+            self.assertEqual(daily.AI_ERROR,{'source':'image','code':429})
 
     def test_licenses(self):
         def info(license):return {'extmetadata':{'LicenseShortName':{'value':license}}}

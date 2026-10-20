@@ -27,7 +27,7 @@ STATUS_FILE = ROOT / 'data' / 'status.json'
 UA = os.getenv('WIKIMEDIA_USER_AGENT') or 'MikoAtelier/1.0 (personal visual-study project; https://github.com/)'
 GEMINI_KEY = os.getenv('GEMINI_API_KEY', '').strip()
 # Prefer a currently advertised free-tier model; override if your AI Studio plan differs.
-MODEL = os.getenv('GEMINI_MODEL', 'gemini-3.1-flash-lite').strip()
+MODEL = os.getenv('GEMINI_MODEL', 'gemini-3.5-flash-lite').strip()
 # No paid API key or automated billing fallback.
 API_URL = 'https://commons.wikimedia.org/w/api.php'
 GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/'
@@ -41,6 +41,7 @@ TARGET = {'portrait': 4, 'photography': 3, 'cinema': 1}
 FREE_TIER_CONFIRMED = os.getenv('GEMINI_FREE_TIER_CONFIRMED', '').lower() == 'true'
 AI_ENABLED = bool(GEMINI_KEY and FREE_TIER_CONFIRMED)
 AI_STOPPED = False
+AI_ERROR = None
 ERRORS = []
 
 
@@ -128,9 +129,10 @@ def search_commons(term, category, count=36):
 
 
 def analyze(item):
-    global AI_STOPPED
+    global AI_STOPPED, AI_ERROR
     if not AI_ENABLED or AI_STOPPED:
         return None
+    stage = 'image'
     try:
         content = get(item['image'], limit=3_000_000)
         if content.startswith(b'\x89PNG'):
@@ -154,6 +156,7 @@ def analyze(item):
         req = urllib.request.Request(url, data=json.dumps(payload).encode('utf-8'), method='POST', headers={
             'Content-Type': 'application/json', 'x-goog-api-key': GEMINI_KEY, 'User-Agent': UA,
         })
+        stage = 'gemini'
         with urllib.request.urlopen(req, timeout=75) as resp:
             response = json.load(resp)
         message = response['candidates'][0]['content']['parts'][0]['text']
@@ -161,10 +164,12 @@ def analyze(item):
         return {k: str(result[k])[:250] for k in ('lighting','composition','color','practice') if isinstance(result.get(k), str)}
     except urllib.error.HTTPError as exc:
         AI_STOPPED = True
-        print(f'[WARN] Gemini HTTP {exc.code}: stop AI for this run (no paid fallback).', file=sys.stderr)
+        AI_ERROR = {'source': stage, 'code': exc.code}
+        print(f'[WARN] {stage} HTTP {exc.code}: stop AI for this run (no paid fallback).', file=sys.stderr)
         return None
     except (TimeoutError, ValueError, KeyError, OSError, IndexError, json.JSONDecodeError) as exc:
-        print('[WARN] Gemini analysis failed; no paid fallback.', file=sys.stderr)
+        AI_ERROR = {'source': stage, 'code': type(exc).__name__}
+        print(f'[WARN] {stage} analysis failed ({type(exc).__name__}); no paid fallback.', file=sys.stderr)
         return None
 
 
@@ -259,7 +264,8 @@ def main():
     status = {'lastAttempt': now.isoformat(), 'latestSelection': entries[0]['date'] if entries else None,
               'newItems': len(chosen), 'todayItems': today_count, 'targetItems': target,
               'analyzedItems': analyzed, 'totalItems': len(entries),
-              'aiStatus': 'enabled' if AI_ENABLED else 'disabled-awaiting-free-tier-confirmation',
+              'aiStatus': ('waiting-for-service' if AI_ERROR else 'enabled') if AI_ENABLED else 'disabled-awaiting-free-tier-confirmation',
+              'aiError': AI_ERROR, 'totalAnalyzed': sum(bool(x.get('analysis')) for x in entries),
               'sourceErrors': len(ERRORS),
               'message': 'success' if today_count >= target else 'partial' if today_count else 'source-unavailable'}
     STATUS_FILE.write_text(json.dumps(status, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
