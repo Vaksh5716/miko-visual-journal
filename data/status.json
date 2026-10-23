@@ -1,14 +1,14 @@
 {
-  "lastAttempt": "2026-10-23T04:45:40.536626+08:00",
-  "latestSelection": "2026-10-23",
+  "lastAttempt": "2026-10-24T04:47:49.551786+08:00",
+  "latestSelection": "2026-10-24",
   "newItems": 8,
   "todayItems": 8,
   "targetItems": 8,
   "analyzedItems": 8,
-  "totalItems": 32,
+  "totalItems": 40,
   "aiStatus": "enabled",
   "aiError": null,
-  "totalAnalyzed": 32,
+  "totalAnalyzed": 40,
   "sourceErrors": 0,
   "message": "success"
 }
